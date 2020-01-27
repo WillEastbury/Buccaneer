@@ -25,7 +25,7 @@ Usage :
                 );
         }
 
-2. Somewhere in your assembly, you need to decorate **something** with one of the following attributes, this can be a concrete class OR an interface (Unlike Swashbuckle, this doesn't have to be a asp.net Web api call).
+2a. Somewhere in your assembly, you need to decorate **something** with one of the following attributes, this can be a concrete class OR an interface (Unlike Swashbuckle, this doesn't have to be a asp.net Web api call).
 
 Methods can be decorated with TWO attributes
 
@@ -33,7 +33,7 @@ Methods can be decorated with TWO attributes
 
 - OpenApiTagMethodAttribute() This tells the engine that you intend to expose this method over swagger, simply add this attribute to the methods that you want to expose.
 
-Here's a sample that exposes an interface with no concrete implementation, which is awesome for mocking an API. 
+Here's a sample that exposes an *interface* with no concrete implementation, which is awesome for mocking an API, or for example building a swagger for a service that doesn't use c#, like a logic app, or a facade implemented in Azure Functions Proxies.
 
     public interface ITenantAPI
     {
@@ -46,7 +46,34 @@ Here's a sample that exposes an interface with no concrete implementation, which
 
     }
     
-And boom, you're done! 
+2b. Here's an example of generating a swagger for an http bound Azure Function (and yes it works with netcore 3.1 and the new v3 functions runtime) behind AAD easyauth with an AAD B2C domain.
+
+using static Buccaneer.SwaggerGenerator;
+
+namespace Threeshades_Blog_Engine
+{
+    public class Categories
+    {
+
+        [FunctionName("GetCategoryData")]
+        [OpenApiTagMethod("Category", "Get Category Data", "Retrieves categories on a blog", new int[] { 200, 409 }, "ListOfCategories", null, null, route: "{tenantId}/Categories", methodlist: "get")]
+        [OpenApiTagInputParameter("tenantId", true, "string", "Path")]
+        public static async Task<IActionResult> GetCategoryData(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "{tenantId:alpha}/Categories")] HttpRequest req,
+            [Blob("categories-{tenantId}", FileAccess.ReadWrite)] CloudBlobContainer cbc,
+            string tenantId,
+            ILogger log)
+        {
+
+            log.LogInformation($"C# HTTP trigger function processed a request. for categories for {tenantId}");
+            CloudBlockBlob cbb = cbc.GetBlockBlobReference($"categorylist-{tenantId}.blob");
+            return (ActionResult)new OkObjectResult(await cbb.DownloadTextAsync());
+
+        }
+   }
+}
+
+And boom, you're done, it really is **that** simple ! 
 
 Instant Swagger Definition, you can also call GetSwaggerAsJSONString() if you want a JSON swagger instead of a YAML one.
     
