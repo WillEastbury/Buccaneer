@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-   
+    <PackageReference Include="Buccaneer_SwaggerGen" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
