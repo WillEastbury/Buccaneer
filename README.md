@@ -8,6 +8,8 @@ Consists only of a few methods and a couple of decorator attributes, so it's ult
 
 Usage :
 
+Install it from Nuget (Package name Buccaneer_SwaggerGen) or grab the single source code file from here.
+
 1. Generate a swagger defintiion in YAML from inside C# code for an API using Azure AD B2C to authenticate via the implicit flow.
 
             return new Buccaneer.SwaggerGenerator().GetSwaggerAsHttpResponseMessageWithYAMLString(
