@@ -76,4 +76,41 @@ namespace Threeshades_Blog_Engine
 And boom, you're done, it really is **that** simple ! 
 
 Instant Swagger Definition, you can also call GetSwaggerAsJSONString() if you want a JSON swagger instead of a YAML one.
-    
+
+3. This sample will even host the Swagger Definition INSIDE your function app, if you want a self-swagger-documenting Azure Function App
+
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Reflection;
+
+namespace Threeshades_Blog_Engine
+{
+    public class GenerateSwaggerFunction
+    {
+        
+        [FunctionName("GenerateSwaggerFunction")]
+        public HttpResponseMessage Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "swagger")] HttpRequestMessage req, ILogger log)
+        {
+            return new Buccaneer.SwaggerGenerator().GetSwaggerAsHttpResponseMessageWithYAMLString(
+                _ass: Assembly.GetExecutingAssembly(),
+                _title: "Wills Blog API",
+                _apiversion: "0.1",
+                _description: "A sample blog API",
+                _contactname: "Will Eastbury",
+                _contactemail: "willeastbury@gmail.com",
+                _apiServerPaths: new List<string>() { "http://localhost:7071/api", "https://www.willeastbury.com/api" },
+                _oauth2scopes: new Dictionary<string, string> { { "https://threeshadesb2c.onmicrosoft.com/willeastburycom/connect", "Connect" }},
+                _headerapikeyname: null,
+                _oauth2AuthUrl: "https://threeshadesb2c.b2clogin.com/threeshadesb2c.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_willeastbury.com",
+                _securitySchemeName: "oauth2"
+                );
+        }
+    }
+}
+
+This will expose a /swagger endpoint as an http triggered Azure Function.
+
+Enjoy ! 
