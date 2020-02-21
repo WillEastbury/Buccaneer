@@ -10,8 +10,9 @@ Usage :
 
 Install it from Nuget (Package name Buccaneer_SwaggerGen) or grab the single source code file from here.
 
-1. Generate a swagger defintiion in YAML from inside C# code for an API using Azure AD B2C to authenticate via the implicit flow.
+1. Generate a swagger definition in YAML from inside C# code for an API using Azure AD B2C to authenticate via the implicit flow.
 
+```
             return new Buccaneer.SwaggerGenerator().GetSwaggerAsHttpResponseMessageWithYAMLString(
                 _ass: Assembly.GetExecutingAssembly(),
                 _title: "Wills Blog API",
@@ -27,6 +28,8 @@ Install it from Nuget (Package name Buccaneer_SwaggerGen) or grab the single sou
                 );
         }
 
+```
+
 2a. Somewhere in your assembly, you need to decorate **something** with one of the following attributes, this can be a concrete class OR an interface (Unlike Swashbuckle, this doesn't have to be a asp.net Web api call).
 
 Methods can be decorated with TWO attributes
@@ -37,6 +40,7 @@ Methods can be decorated with TWO attributes
 
 Here's a sample that exposes an *interface* with no concrete implementation, which is awesome for mocking an API, or for example building a swagger for a service that doesn't use c#, like a logic app, or a facade implemented in Azure Functions Proxies.
 
+```
     public interface ITenantAPI
     {
         [OpenApiTagMethod("Tenant", "Add Tenant", "Adds a BlogTenant to the platform", new int[] { 200, 404 }, "BlogTenant", "oauth2", "", route: "Tenants", methodlist: "post")]
@@ -47,9 +51,12 @@ Here's a sample that exposes an *interface* with no concrete implementation, whi
         public Task<IActionResult> DeleteTenant();
 
     }
-    
+   
+```
+
 2b. Here's an example of generating a swagger for an http bound Azure Function (and yes it works with netcore 3.1 and the new v3 functions runtime) behind AAD easyauth with an AAD B2C domain.
 
+```
 using static Buccaneer.SwaggerGenerator;
 
 namespace Threeshades_Blog_Engine
@@ -75,12 +82,14 @@ namespace Threeshades_Blog_Engine
    }
 }
 
+```
 And boom, you're done, it really is **that** simple ! 
 
 Instant Swagger Definition, you can also call GetSwaggerAsJSONString() if you want a JSON swagger instead of a YAML one.
 
 3. This sample will even host the Swagger Definition INSIDE your function app, if you want a self-swagger-documenting Azure Function App
 
+```
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
@@ -112,6 +121,7 @@ namespace Threeshades_Blog_Engine
         }
     }
 }
+```
 
 This will expose a /swagger endpoint as an http triggered Azure Function.
 
